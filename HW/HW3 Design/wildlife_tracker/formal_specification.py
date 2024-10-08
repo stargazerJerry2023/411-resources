@@ -1,4 +1,8 @@
 from typing import Any, List, Optional
+from animal import Animal
+from habitat import Habitat
+from migration import Migration
+from migration_path import MigrationPath
 
 
 age: Optional[int] = None
