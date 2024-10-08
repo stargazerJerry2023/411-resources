@@ -8,10 +8,10 @@ class AnimalManager:
         animals: dict[int, Animal] = {}
 
     def get_animal_by_id(self, animal_id: int) -> Optional[Animal]:
-        pass
+        return self.animals.get(animal_id)
 
     def register_animal(self, Animal) -> None:
-        pass
+        self.animals[Animal.animal_id] = Animal
 
     def remove_animal(self, animal_id: int) -> None:
-        pass
+        del self.animals[animal_id]
