@@ -18,3 +18,5 @@ class Animal:
             "age": self.age,
             "health_status": self.health_status,
         }
+
+    def update_animal_details(self, animal_id: int, **kwargs: Any) -> None:
