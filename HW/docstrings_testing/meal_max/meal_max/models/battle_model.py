@@ -20,13 +20,13 @@ class BattleModel:
 
     def battle(self) -> str:
         """
-        Let the first two meals in the conbatants list battle. The loser gets removed from the list.
+        Let the first two meals in the combatants list battle. The loser gets removed from the list.
 
         Returns:
             str: The meal's name of the winner of the battle
 
         Raises:
-            ValueError: If less than 2 meals exist in the conbatants list
+            ValueError: If less than 2 meals exist in the combatants list
         """
         logger.info("Two meals enter, one meal leaves!")
 
