@@ -91,7 +91,7 @@ def clear_meals() -> None:
 
 def delete_meal(meal_id: int) -> None:
     """
-    Mark a meal ad deleted in the database.based on its ID.
+    Mark a meal as deleted in the database based on its ID.
 
     Args:
         meal_id (int): ID of the meal to you want to delete.
