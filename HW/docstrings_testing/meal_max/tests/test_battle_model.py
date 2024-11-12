@@ -1,5 +1,5 @@
-
 import pytest
+from unittest.mock import call
 
 from meal_max.models.battle_model import BattleModel
 from meal_max.models.kitchen_model import Meal
@@ -10,10 +10,10 @@ def battle_model():
     """Fixture to provide a new instance of BattleModel for each test."""
     return BattleModel()
 
-# @pytest.fixture
-# def mock_update_play_count(mocker):
-#     """Mock the update_play_count function for testing purposes."""
-#     return mocker.patch("music_collection.models.playlist_model.update_play_count")
+@pytest.fixture
+def mock_update_meal_stats(mocker):
+    """Mock the update_meal_stats function for testing purposes."""
+    return mocker.patch("meal_max.models.battle_model.update_meal_stats")
 
 """Fixtures providing sample meals for the tests."""
 @pytest.fixture
@@ -32,10 +32,13 @@ def sample_combatants(sample_meal1, sample_meal2):
 # battle Test Cases
 ##################################################
 
-def test_battle(battle_model, sample_combatants):
+def test_battle(battle_model, sample_combatants, mock_update_meal_stats, mocker):
     """Test battle function."""
     battle_model.combatants.extend(sample_combatants)
+    mock_random = mocker.patch("meal_max.models.battle_model.get_random", return_value=0.12)
     winner = battle_model.battle()
+    assert mock_update_meal_stats.call_count == 2
+    mock_update_meal_stats.assert_has_calls([call(1, 'win'), call(2, 'loss')])
     assert len(battle_model.combatants) == 1
     assert battle_model.combatants[0].meal == winner 
     assert winner in ["Meal 1", "Meal 2"], f"Unexpected winner: {winner}"
