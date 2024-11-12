@@ -1,3 +1,4 @@
+
 import pytest
 
 from meal_max.models.battle_model import BattleModel
@@ -36,7 +37,8 @@ def test_battle(battle_model, sample_combatants):
     battle_model.combatants.extend(sample_combatants)
     winner = battle_model.battle()
     assert len(battle_model.combatants) == 1
-    assert winner == 'Meal 1' or winner == 'Meal 2'
+    assert battle_model.combatants[0].meal == winner 
+    assert winner in ["Meal 1", "Meal 2"], f"Unexpected winner: {winner}"
 
 def test_battle_empty_combatants_list(battle_model):
     """Test error when calling battle on an empty list."""

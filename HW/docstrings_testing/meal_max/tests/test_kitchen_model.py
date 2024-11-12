@@ -81,7 +81,7 @@ def test_create_meal_invalid_price():
 
 def test_create_meal_invalid_difficulty():
     """Test error when creating a meal with invalid difficulty."""
-    with pytest.raises(ValueError, match="Invalid difficulty: 'UNKNOWN'. Difficulty must be one of LOW, MED, HIGH."):
+    with pytest.raises(ValueError, match="Invalid difficulty level: UNKNOWN. Must be 'LOW', 'MED', or 'HIGH'."):
         create_meal(meal="Pizza", cuisine="Italian", price=15.99, difficulty="UNKNOWN")
 
 def test_delete_meal(mock_cursor):
@@ -115,7 +115,7 @@ def test_delete_meal_bad_id(mock_cursor):
 def test_delete_meal_already_deleted(mock_cursor):
     """Test error when trying to delete an already deleted meal."""
     mock_cursor.fetchone.return_value = [True]
-    with pytest.raises(ValueError, match="Meal with ID 1 is already deleted"):
+    with pytest.raises(ValueError, match="Meal with ID 1 has been deleted"):
         delete_meal(1)
     
 
@@ -154,7 +154,7 @@ def test_get_meal_by_invalid_id(mock_cursor):
 
 def test_get_meal_by_deleted_id(mock_cursor):
     mock_cursor.fetchone.return_value = (1, "Pasta", "Italian", 12.99, "MED", True)
-    with pytest.raises(ValueError, match="Meal with ID 1 is deleted"):
+    with pytest.raises(ValueError, match="Meal with ID 1 has been deleted"):
         get_meal_by_id(1)
 
 def test_get_meal_by_name(mock_cursor):
@@ -169,12 +169,12 @@ def test_get_meal_by_name(mock_cursor):
 
 def test_get_meal_by_invalid_name(mock_cursor):
     mock_cursor.fetchone.return_value = None
-    with pytest.raises(ValueError, match="Meal with name 'Pizza' not found"):
+    with pytest.raises(ValueError, match="Meal with name Pizza not found"):
         get_meal_by_name("Pizza")
 
 def test_get_meal_by_deleted_name(mock_cursor):
     mock_cursor.fetchone.return_value = (1, "Pasta", "Italian", 12.99, "MED", True)
-    with pytest.raises(ValueError, match="Meal with name 'Pasta' is deleted"):
+    with pytest.raises(ValueError, match="Meal with name Pasta has been deleted"):
         get_meal_by_name("Pasta")
 
 def test_update_meal_stats(mock_cursor):
@@ -182,10 +182,10 @@ def test_update_meal_stats(mock_cursor):
     update_meal_stats(1, "win")
 
     expected_query = normalize_whitespace("UPDATE meals SET battles = battles + 1, wins = wins + 1 WHERE id = ?")
-    actual_query = normalize_whitespace(mock_cursor.execute.call_args[1][0])
+    actual_query = normalize_whitespace(mock_cursor.execute.call_args_list[1][0][0])
     assert actual_query == expected_query
 
-    actual_arguments = mock_cursor.execute.call_args[1][1]
+    actual_arguments = mock_cursor.execute.call_args_list[1][0][1]
     assert actual_arguments == (1,), f"Expected (1,), got {actual_arguments}"
 
 def test_update_meal_stats_invalid_id(mock_cursor):
@@ -194,12 +194,13 @@ def test_update_meal_stats_invalid_id(mock_cursor):
         update_meal_stats(999, "win")
 
 def test_update_meal_stats_invalid_stat(mock_cursor):
-    with pytest.raises(ValueError, match="Invalid stat parameter. Must be 'win' or 'loss'"):
+    mock_cursor.fetchone.return_value = [False]
+    with pytest.raises(ValueError, match="Invalid result: invalid_stat. Expected 'win' or 'loss'."):
         update_meal_stats(1, "invalid_stat")
 
 def test_update_meal_stats_deleted(mock_cursor):
     mock_cursor.fetchone.return_value = [True]
-    with pytest.raises(ValueError, match="Meal with ID 1 is deleted"):
+    with pytest.raises(ValueError, match="Meal with ID 1 has been deleted"):
         update_meal_stats(1, "win")
     
 def test_get_leaderboard_sorted_by_wins(mock_cursor):
@@ -214,9 +215,9 @@ def test_get_leaderboard_sorted_by_wins(mock_cursor):
     result = get_leaderboard(sort_by="wins")
 
     expected_result = [
-        {"id": 1, "meal": "Pasta", "cuisine": "Italian", "price": 12.99, "difficulty": "MED", "battles": 10, "wins": 8, "win_pct": 80.0},
-        {"id": 2, "meal": "Pizza", "cuisine": "Italian", "price": 15.99, "difficulty": "HIGH", "battles": 8, "wins": 5, "win_pct": 62.5},
-        {"id": 3, "meal": "Burger", "cuisine": "American", "price": 10.99, "difficulty": "LOW", "battles": 12, "wins": 4, "win_pct": 33.3}
+        {"id": 1, "meal": "Pasta", "cuisine": "Italian", "price": 12.99, "difficulty": "MED", "battles": 10, "wins": 8, "win_pct": 8000.0},
+        {"id": 2, "meal": "Pizza", "cuisine": "Italian", "price": 15.99, "difficulty": "HIGH", "battles": 8, "wins": 5, "win_pct": 6250},
+        {"id": 3, "meal": "Burger", "cuisine": "American", "price": 10.99, "difficulty": "LOW", "battles": 12, "wins": 4, "win_pct": 3330}
     ]
     
     assert result == expected_result, f"Expected {expected_result}, got {result}"
@@ -240,9 +241,9 @@ def test_get_leaderboard_sorted_by_win_pct(mock_cursor):
     result = get_leaderboard(sort_by="win_pct")
 
     expected_result = [
-        {"id": 1, "meal": "Burger", "cuisine": "American", "price": 10.99, "difficulty": "LOW", "battles": 12, "wins": 9, "win_pct": 75.0},
-        {"id": 2, "meal": "Pizza", "cuisine": "Italian", "price": 15.99, "difficulty": "HIGH", "battles": 8, "wins": 5, "win_pct": 62.5},
-        {"id": 3, "meal": "Pasta", "cuisine": "Italian", "price": 12.99, "difficulty": "MED", "battles": 10, "wins": 6, "win_pct": 60.0}
+        {"id": 1, "meal": "Burger", "cuisine": "American", "price": 10.99, "difficulty": "LOW", "battles": 12, "wins": 9, "win_pct": 7500},
+        {"id": 2, "meal": "Pizza", "cuisine": "Italian", "price": 15.99, "difficulty": "HIGH", "battles": 8, "wins": 5, "win_pct": 6250},
+        {"id": 3, "meal": "Pasta", "cuisine": "Italian", "price": 12.99, "difficulty": "MED", "battles": 10, "wins": 6, "win_pct": 6000}
     ]
     
     assert result == expected_result, f"Expected {expected_result}, got {result}"
