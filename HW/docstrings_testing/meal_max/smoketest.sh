@@ -224,7 +224,6 @@ create_meal "Pasta" "Italian" 12.99 "MED"
 create_meal "Burger" "American" 10.99 "LOW"
 create_meal "Sushi" "Japanese" 15.99 "HIGH"
 
-get_all_meals
 get_meal_by_id 1
 get_meal_by_id 2
 
